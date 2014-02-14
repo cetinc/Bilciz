@@ -7,28 +7,62 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
-public class islemler : MonoBehaviour {
+ 
+public class SoruBoslist
+{
+	public string soru;
+	public string cevapA;
+	public string cevapB;
+	public string cevapC;
+	public string cevapD;
+	public string dogruCevap;
+	public string seviye;
+	public int kategori;
 
-	private bool kopyalasil = false;
+	public SoruBoslist(string _soru1, string _cevapA, string _cevapB, string _cevapC, string _cevapD, string _dogruCevap, string _seviye, int _kategori)
+	{
+		this.soru = _soru1;
+		this.cevapA = _cevapA;
+		this.cevapB = _cevapB;
+		this.cevapC = _cevapC;
+		this.cevapD = _cevapD;
+		this.dogruCevap = _dogruCevap;
+		this.seviye = _dogruCevap;
+		this.kategori = _kategori;
+	}
+}
+
+
+
+public class localVeriCek : MonoBehaviour {
+
 	private SQLiteDB db;
 	private string dbAdi;
 	private string dbpath;
 	private static  SQLiteQuery qr;
 	public UILabel txtSELECT;
-	//private string queryCreate = "CREATE TABLE IF NOT EXISTS KULLANICI (id INTEGER PRIMARY KEY, isim TEXT, sayi NUMERIC);";
-	//private string queryInsert = "INSERT INTO KULLANICI (isim,sayi) VALUES(?,?);";
+	private bool kopyalasil = false;
 
-	// Use this for initialization
 	void Start () {
+
+		//databaseKopyala ();
+
+
+		SoruDoldur("1", 3);
+		SoruDoldur("2", 4);
 
 
 	
 	}
 
-	void databaseAc(){
+
+	// Update is called once per frame
+	void Update () {
+	
+	}
 
 
-
+	void databaseAc(){		
 		//////////////////////////////////////////////////////////////////////////////////////////
 		
 		db = new SQLiteDB();		
@@ -37,7 +71,7 @@ public class islemler : MonoBehaviour {
 		byte[] bytes = null;		
 		
 		#if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
-		dbpath = "file://" + Application.streamingAssetsPath + "/" + dbAdi;
+		dbpath = "file://" + Application.persistentDataPath + "/" + dbAdi;
 		WWW www = new WWW(dbpath);
 		Download(www);
 		bytes = www.bytes;
@@ -59,7 +93,7 @@ public class islemler : MonoBehaviour {
 			log += 	"\n";
 		}
 		#elif UNITY_ANDROID
-		string dbpath = Application.streamingAssetsPath + "/" + dbAdi;	           
+		string dbpath = Application.persistentDataPath + "/" + dbAdi;	           
 		WWW www = new WWW(dbpath);
 		Download(www);
 		bytes = www.bytes;
@@ -69,15 +103,15 @@ public class islemler : MonoBehaviour {
 		{
 			
 			try{	
-
-
+				
+				
 				MemoryStream memStream = new MemoryStream();
 				
 				memStream.Write(bytes,0,bytes.Length);
 				db.OpenStream("stream2",memStream); 
-			
 				
-
+				
+				
 			} catch (Exception e){
 				UnityEngine.Debug.Log ("hata:"+e);
 			}
@@ -86,9 +120,15 @@ public class islemler : MonoBehaviour {
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
 
+	IEnumerator Download( WWW www )
+	{
+		yield return www;
+	}
+
+
 
 	void databaseKopyala(){
-
+		
 		kopyalasil = true;
 		UnityEngine.Debug.Log ("kopya:"+kopyalasil);
 		
@@ -143,13 +183,13 @@ public class islemler : MonoBehaviour {
 				{
 					fs.Write(bytes,0,bytes.Length);         
 				}
-
+				
 				//File.Delete(dbpath);
-
-
-
-								
-					//
+				
+				
+				
+				
+				//
 				// initialize database
 				//
 				db.Open(filename);                               
@@ -161,142 +201,39 @@ public class islemler : MonoBehaviour {
 			} catch (Exception e){
 				UnityEngine.Debug.Log ("hata:"+e);
 			}
-
-
+			
+			
 		}
-
+		
 		UnityEngine.Debug.Log ("ahanda bu:" + dbpath);
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
 
 
-
-	IEnumerator Download( WWW www )
+	void SoruDoldur(string seviye, int sayi)
 	{
-			yield return www;
-		}
-		
-
-	void Update () {
-		
-	}
-	
-	public void VeritabaniOlustur( )
-	{
-		db.Open(dbAdi);
-		qr = new SQLiteQuery(db, "CREATE TABLE IF NOT EXISTS KULLANICI (id INTEGER PRIMARY KEY, isim TEXT, sayi NUMERIC);"); 
-		qr.Step();												
-		qr.Release();   
-		db.Close();		
-	}
-
-	public void  VeriEkle(GameObject obje)
-	{
-
-		db = new SQLiteDB();		
-		dbAdi = "database.db";
-		
-	
-
-		dbpath = Application.persistentDataPath + "/" + dbAdi;
-
-		db.Open (dbpath);
-		UnityEngine.Debug.Log(dbpath);
-		
-		string insert = obje.GetComponent<butonOlaylari>().InsertCumlesi;
-		string aa = "adsiz";
-		int bb = 12;
-
-	
-		try {	
-			UnityEngine.Debug.Log("girdi");
-			qr = new SQLiteQuery(db, "INSERT INTO SORULAR (soruID,soru,cevapA,cevapB,cevapC,cevapD,dogruCevap,soruSeviye,kategoriID,soruTipi) VALUES (?,?,?,?,?,?,?,?,?,?);"); 
-			//qr.Bind(aa);
-			//qr.Bind(bb);
-			qr.Step();
-			qr.Release(); 
-			db.Close();
-			//return true;
-			UnityEngine.Debug.Log("kapattı");
-			
-				} catch (Exception ex) {
-			//return false;
-			UnityEngine.Debug.Log("hata"+ex);
-
-				}
-
-	}
-
-	public void VeriGetir(GameObject obje)
-	{
-
-		if (kopyalasil == false) databaseKopyala ();
+		IList<SoruBoslist> Sorulistesi = new List<SoruBoslist>();
 
 		databaseAc ();
 
+		string select = "select * from SORULAR";
 
-		string select = obje.GetComponent<butonOlaylari>().SelectCumlesi;
-		//GetComponent<GUIText>().color = go.GetComponent<TextProperties>().renk;
+		qr = new SQLiteQuery(db, select); 
 
+	
 
-		List<string> liste = new List<string>();
-
-				
-		try {
-
-				qr = new SQLiteQuery(db, select); 
-				
-					while(qr.Step())
-						
-					{	
-						liste.Add(qr.GetString("isim") + " - " + qr.GetInteger("sayi").ToString());
-						
-					}
-				
-				db.Close();
-				
-				txtSELECT.text = "";
-				
-					
-					for (int i = 0; i < liste.Count; i++) {
-
-						txtSELECT.text = txtSELECT.text + liste[i] + "\n";
-					}	
-
-		} 
-
-		catch (Exception ex) {
-			UnityEngine.Debug.Log("hata"+ex);
+		while(qr.Step())			
+		{	
+			Sorulistesi.Add(new SoruBoslist(qr.GetString("soru").ToString(),qr.GetString("cevapA").ToString(),qr.GetString("cevapB").ToString(),qr.GetString("cevapC").ToString(),qr.GetString("cevapD").ToString(),qr.GetString("dogruCevap").ToString(),qr.GetString("soruSeviye").ToString(), qr.GetInteger("kategoriID")));			
 		}
+		
+		db.Close();
 
 
-	
+		txtSELECT.text= Sorulistesi[0].soru;
+
+
+
 	}
-
-
-	public void VeriSil(GameObject obje)
-	{
-		SQLiteQuery qr;
-
-		try {
-
-			databaseAc ();
-			qr = new SQLiteQuery(db, "DELETE FROM KULLANICI WHERE isim = 'Nazif';"); 
-			qr.Step();												
-			qr.Release();   
-			db.Close();	
-
-			UnityEngine.Debug.Log("silme");
-
-
-			
-				} catch (Exception ex) {
-			UnityEngine.Debug.Log("hata"+ex);
-				}
-	
-	}
-
 
 }
-
-

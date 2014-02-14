@@ -13,13 +13,24 @@ public class veriCek : MonoBehaviour
 
 	
 	void Start () 
-	{	  
+	{	
+
+		veriCekCagir ();
 	}
 
 
 	void Update () 
 	{
 	}
+
+	public void  VeriEkle(GameObject obje)
+	{
+		string select = obje.GetComponent<butonOlaylari>().SelectCumlesi;
+		Debug.Log (select);
+		
+
+	}
+
 
 	void veriCekCagir(){
 		StartCoroutine("GetData");//Veri çekme işlemi çağırılıyor..

@@ -26,6 +26,6 @@ include("common.php");
     for($i = 0; $i < $num_results; $i++)
     {
          $row = mysql_fetch_array($result);
- echo $row['soru'] . "|" . $row['cevapA'] . "|" . $row['cevapB'] . "|" . $row['cevapC'] . "|" . $row['cevapD'] . "|" . $row['dogruCevap'] . "==";
+ echo $row['soruID'] . "|" . $row['soru'] . "|" . $row['cevapA'] . "|" . $row['cevapB'] . "|" . $row['cevapC'] . "|" . $row['cevapD'] . "|" . $row['dogruCevap'] ."|" . $row['soruSeviye']."|" . $row['kategoriID'] ."|" . $row['soruTipi'] . "==";
     }
 ?>
